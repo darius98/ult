@@ -1,22 +1,24 @@
 #pragma once
 
-#include <ult/internal/meta.hpp>
-#include <ult/internal/task-data.hpp>
+#include "internal/meta.hpp"
+#include "internal/task-data.hpp"
 
 namespace ult {
 
 class Scheduler;
 
-class TaskPromise: public internal::TaskDataPtr {
+class TaskPromise : public internal::TaskDataPtr {
  public:
   using internal::TaskDataPtr::TaskDataPtr;
+
+  bool is_done() const;
 
   int exit_status() const;
 
   friend class Task;
 };
 
-class Task: public internal::TaskDataPtr {
+class Task : public internal::TaskDataPtr {
  public:
   using id_type = decltype(sizeof(int));          // size_t
   using stack_size_type = decltype(sizeof(int));  // size_t
@@ -39,11 +41,13 @@ class Task: public internal::TaskDataPtr {
 
   ~Task() = default;
 
+  TaskPromise promise();
+
+  Scheduler& scheduler();
+
   void yield();
 
   [[noreturn]] void exit(exit_status_type status = 0);
-
-  TaskPromise make_promise();
 
  private:
   Task(Scheduler* scheduler, raw_task_ptr task, void* arg, stack_size_type stack_size);

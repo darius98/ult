@@ -14,7 +14,7 @@ TEST(NonPreemptive, NoTasks) {
 TEST(NonPreemptive, SingleTask) {
   Scheduler s;
   std::vector<int> checkpoints;
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     checkpoints.push_back(0);
   });
   ASSERT_EQ(checkpoints, std::vector<int>{});
@@ -25,7 +25,7 @@ TEST(NonPreemptive, SingleTask) {
 TEST(NonPreemptive, SingleTaskYield) {
   Scheduler s;
   std::vector<int> checkpoints;
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     for (int i = 0; i < 3; i++) {
       checkpoints.push_back(i);
       task.yield();
@@ -39,7 +39,7 @@ TEST(NonPreemptive, SingleTaskYield) {
 TEST(NonPreemptive, SingleTaskExit) {
   Scheduler s;
   std::vector<int> checkpoints;
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     for (int i = 0; i < 10; i++) {
       if (i == 3) {
         task.exit();
@@ -55,7 +55,7 @@ TEST(NonPreemptive, SingleTaskExit) {
 TEST(NonPreemptive, SingleTaskYieldAndExit) {
   Scheduler s;
   std::vector<int> checkpoints;
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     for (int i = 0; i < 10; i++) {
       if (i == 3) {
         task.exit();
@@ -72,11 +72,11 @@ TEST(NonPreemptive, SingleTaskYieldAndExit) {
 TEST(NonPreemptive, TwoTasks) {
   Scheduler s;
   std::vector<int> checkpoints;
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     checkpoints.push_back(0);
   });
   ASSERT_EQ(checkpoints, std::vector<int>{});
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     checkpoints.push_back(1);
   });
   ASSERT_EQ(checkpoints, std::vector<int>{});
@@ -87,14 +87,14 @@ TEST(NonPreemptive, TwoTasks) {
 TEST(NonPreemptive, TwoTasksYield) {
   Scheduler s;
   std::vector<int> checkpoints;
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     for (int i = 0; i < 3; i++) {
       checkpoints.push_back(i);
       task.yield();
     }
   });
   ASSERT_EQ(checkpoints, std::vector<int>{});
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     for (int i = 3; i < 6; i++) {
       checkpoints.push_back(i);
       task.yield();
@@ -108,7 +108,7 @@ TEST(NonPreemptive, TwoTasksYield) {
 TEST(NonPreemptive, TwoTasksExit) {
   Scheduler s;
   std::vector<int> checkpoints;
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     for (int i = 0; i < 10; i++) {
       if (i == 3) {
         task.exit();
@@ -117,7 +117,7 @@ TEST(NonPreemptive, TwoTasksExit) {
     }
   });
   ASSERT_EQ(checkpoints, std::vector<int>{});
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     for (int i = 10; i < 20; i++) {
       if (i == 13) {
         task.exit();
@@ -133,7 +133,7 @@ TEST(NonPreemptive, TwoTasksExit) {
 TEST(NonPreemptive, TwoTasksYieldAndExit) {
   Scheduler s;
   std::vector<int> checkpoints;
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     for (int i = 0; i < 10; i++) {
       if (i == 3) {
         task.exit();
@@ -143,7 +143,7 @@ TEST(NonPreemptive, TwoTasksYieldAndExit) {
     }
   });
   ASSERT_EQ(checkpoints, std::vector<int>{});
-  s.enqueue_task([&checkpoints](Task& task) {
+  s.add_task([&checkpoints](Task& task) {
     for (int i = 10; i < 20; i++) {
       if (i == 13) {
         task.exit();

@@ -18,6 +18,7 @@ struct TaskData {
   std::size_t id;
   Task::raw_task_ptr task;
   void* arg;
+  std::atomic<bool> is_done{false};
   Task::exit_status_type exit_status = 0;
   std::size_t stack_size;
   std::unique_ptr<std::byte[]> stack_bottom;

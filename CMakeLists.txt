@@ -19,6 +19,7 @@ function(unittest NAME)
 endfunction()
 
 add_executable(unittests
+    tests/integration.cpp
     tests/non_preemptive.cpp
     tests/task_return.cpp)
 target_link_libraries(unittests PUBLIC gtest gtest_main ult)

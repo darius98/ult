@@ -8,6 +8,10 @@
 
 namespace ult {
 
+bool TaskPromise::is_done() const {
+  return ptr->is_done.load(std::memory_order_acquire);
+}
+
 int TaskPromise::exit_status() const {
   return ptr->exit_status;
 }
@@ -23,6 +27,14 @@ Task::Task(Scheduler* scheduler, raw_task_ptr task, void* arg, stack_size_type s
   ptr->stack_top = ptr->stack_bottom.get() + ptr->stack_size;
 }
 
+TaskPromise Task::promise() {
+  return TaskPromise(ptr);
+}
+
+Scheduler& Task::scheduler() {
+  return *ptr->scheduler;
+}
+
 void Task::yield() {
   if (setjmp(ptr->state)) {
     return;
@@ -33,11 +45,8 @@ void Task::yield() {
 
 void Task::exit(exit_status_type status) {
   ptr->exit_status = status;
+  ptr->is_done.store(true, std::memory_order_release);
   ptr->scheduler->exit_task();
-}
-
-TaskPromise Task::make_promise() {
-  return TaskPromise(ptr);
 }
 
 void Task::run() {

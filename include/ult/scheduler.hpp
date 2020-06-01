@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ult/task.hpp>
+#include "task.hpp"
 
 namespace ult {
 
@@ -11,8 +11,8 @@ class Scheduler {
   ~Scheduler();
 
   template <class T>
-  TaskPromise enqueue_task(T task) {
-    return enqueue_raw_task(Task(this, static_cast<T&&>(task), 8192));
+  TaskPromise add_task(T task) {
+    return add_task_raw(Task(this, static_cast<T&&>(task), 8192));
   }
 
   void run();
@@ -20,7 +20,7 @@ class Scheduler {
  private:
   struct SchedulerData;
 
-  TaskPromise enqueue_raw_task(Task task);
+  TaskPromise add_task_raw(Task task);
 
   void yield_task();
 

@@ -1,8 +1,8 @@
+#include "ult/scheduler.hpp"
+
 #include <atomic>
 #include <csetjmp>
 #include <queue>
-
-#include "ult-scheduler.hpp"
 
 namespace ult {
 
@@ -24,8 +24,7 @@ Scheduler::~Scheduler() {
 }
 
 void Scheduler::run() {
-  const auto setjmp_status = setjmp(impl->scheduler_entry);
-  if (setjmp_status == setjmp_task_yield) {
+  if (setjmp(impl->scheduler_entry) == setjmp_task_yield) {
     impl->tasks.push(std::move(impl->running_task));
   }
   if (!impl->tasks.empty()) {

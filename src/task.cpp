@@ -1,11 +1,12 @@
+#include "ult/task.hpp"
+
 #include <csetjmp>
 #include <cstddef>
 #include <cstdlib>
 #include <memory>
 
 #include "set-stack-pointer.hpp"
-#include "ult-scheduler.hpp"
-#include "ult-task.hpp"
+#include "ult/scheduler.hpp"
 
 namespace ult {
 
@@ -17,7 +18,7 @@ struct Task::TaskData {
   std::size_t id;
   raw_task task;
   void* arg;
-  int exit_status = 0;
+  exit_status_type exit_status = 0;
   std::size_t stack_size;
   std::unique_ptr<std::byte[]> stack_bottom;
 };
@@ -58,7 +59,7 @@ void Task::yield() {
   }
 }
 
-void Task::exit(int status) {
+void Task::exit(exit_status_type status) {
   impl->exit_status = status;
   impl->scheduler->exit_task();
 }

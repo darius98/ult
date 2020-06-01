@@ -1,24 +1,54 @@
+#include <atomic>
+#include <csetjmp>
+#include <queue>
+
 #include "ult-scheduler.hpp"
 
 namespace ult {
 
+constexpr int setjmp_task_yield = 1;
+constexpr int setjmp_task_exit = 2;
+
+struct Scheduler::SchedulerData {
+  jmp_buf scheduler_entry{};
+  Task running_task;
+  std::queue<Task> tasks;
+  std::atomic<std::size_t> next_task_id = 1;
+};
+
+Scheduler::Scheduler() : impl(new SchedulerData()) {
+}
+
+Scheduler::~Scheduler() {
+  delete impl;
+}
+
 void Scheduler::run() {
-  const auto setjmp_status = setjmp(scheduler_entry);
-  if (setjmp_status == setjmp_task_exit) {
-    tasks.erase(tasks.begin() + running_task_index);
-  }
+  const auto setjmp_status = setjmp(impl->scheduler_entry);
   if (setjmp_status == setjmp_task_yield) {
-    running_task_index++;
+    impl->tasks.push(std::move(impl->running_task));
   }
-  if (tasks.empty()) {
-    return;
+  if (!impl->tasks.empty()) {
+    impl->running_task = std::move(impl->tasks.front());
+    impl->tasks.pop();
+    impl->running_task.run();
   }
-  running_task_index = running_task_index % tasks.size();
-  tasks[running_task_index].run();
+}
+
+void Scheduler::enqueue_raw_task(Task task) {
+  impl->tasks.push(std::move(task));
+}
+
+void Scheduler::yield_task() {
+  longjmp(impl->scheduler_entry, setjmp_task_yield);
+}
+
+void Scheduler::exit_task() {
+  longjmp(impl->scheduler_entry, setjmp_task_exit);
 }
 
 std::size_t Scheduler::generate_task_id() {
-  return next_task_id.fetch_add(1, std::memory_order_acq_rel);
+  return impl->next_task_id.fetch_add(1, std::memory_order_acq_rel);
 }
 
 }  // namespace ult

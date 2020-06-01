@@ -1,10 +1,8 @@
 #pragma once
 
-#include <csetjmp>
-#include <cstddef>
 #include <cstdlib>
-
 #include <memory>
+#include <utility>
 
 namespace ult {
 
@@ -19,10 +17,9 @@ class Task {
 
   Task(const Task&) = delete;
   Task& operator=(const Task&) = delete;
-  Task(Task&& other) noexcept = default;
-  Task& operator=(Task&& other) noexcept = default;
-
-  ~Task() = default;
+  Task(Task&& other) noexcept;
+  Task& operator=(Task&& other) noexcept;
+  ~Task();
 
   void yield();
 
@@ -30,6 +27,8 @@ class Task {
 
  private:
   using raw_task = void (*)(Task&, void*);
+
+  Task() = default;
 
   Task(Scheduler* scheduler, raw_task task, void* arg, std::size_t stack_size);
 
@@ -42,16 +41,9 @@ class Task {
     delete callable;
   }
 
-  jmp_buf state{};
-  std::byte* stack_top;
-  bool started = false;
-  Scheduler* scheduler;
-  std::size_t id;
-  raw_task task;
-  void* arg;
-  std::size_t stack_size;
-  std::unique_ptr<std::byte[]> stack_bottom;
-  void* switched_from_stack;
+  struct TaskData;
+
+  TaskData* impl = nullptr;
 
   friend class Scheduler;
 };

@@ -13,7 +13,7 @@ struct Scheduler::SchedulerData {
   jmp_buf scheduler_entry{};
   Task running_task;
   std::queue<Task> tasks;
-  std::atomic<std::size_t> next_task_id = 1;
+  std::atomic<Task::stack_size_type> next_task_id = 1;
 };
 
 Scheduler::Scheduler() : impl(new SchedulerData()) {
@@ -47,7 +47,7 @@ void Scheduler::exit_task() {
   longjmp(impl->scheduler_entry, setjmp_task_exit);
 }
 
-std::size_t Scheduler::generate_task_id() {
+Task::stack_size_type Scheduler::generate_task_id() {
   return impl->next_task_id.fetch_add(1, std::memory_order_acq_rel);
 }
 

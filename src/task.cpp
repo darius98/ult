@@ -1,6 +1,7 @@
 #include <csetjmp>
 #include <cstddef>
 #include <cstdlib>
+#include <memory>
 
 #include "set-stack-pointer.hpp"
 #include "ult-scheduler.hpp"
@@ -21,7 +22,7 @@ struct Task::TaskData {
   std::unique_ptr<std::byte[]> stack_bottom;
 };
 
-Task::Task(Scheduler* scheduler, raw_task task, void* arg, std::size_t stack_size)
+Task::Task(Scheduler* scheduler, raw_task task, void* arg, stack_size_type stack_size)
     : impl(new TaskData()) {
   impl->scheduler = scheduler;
   impl->id = scheduler->generate_task_id();
@@ -32,7 +33,7 @@ Task::Task(Scheduler* scheduler, raw_task task, void* arg, std::size_t stack_siz
   impl->stack_top = impl->stack_bottom.get() + impl->stack_size;
 }
 
-Task::Task(Task&& other) noexcept: impl(other.impl) {
+Task::Task(Task&& other) noexcept : impl(other.impl) {
   other.impl = nullptr;
 }
 

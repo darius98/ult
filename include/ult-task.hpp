@@ -1,24 +1,26 @@
 #pragma once
 
-#include <cstdlib>
-#include <memory>
-#include <utility>
-
 namespace ult {
 
 class Scheduler;
 
 class Task {
  public:
+  using id_type = decltype(sizeof(int));          // size_t
+  using stack_size_type = decltype(sizeof(int));  // size_t
+
   template <class Callable>
-  Task(Scheduler* scheduler, Callable callable, std::size_t stack_size)
-      : Task(scheduler, &task_proxy<Callable>, new Callable(std::move(callable)), stack_size) {
+  Task(Scheduler* scheduler, Callable callable, stack_size_type stack_size)
+      : Task(scheduler, &task_proxy<Callable>, new Callable(static_cast<Callable&&>(callable)),
+             stack_size) {
   }
 
   Task(const Task&) = delete;
   Task& operator=(const Task&) = delete;
+
   Task(Task&& other) noexcept;
   Task& operator=(Task&& other) noexcept;
+
   ~Task();
 
   void yield();
@@ -27,10 +29,11 @@ class Task {
 
  private:
   using raw_task = void (*)(Task&, void*);
+  struct TaskData;
 
   Task() = default;
 
-  Task(Scheduler* scheduler, raw_task task, void* arg, std::size_t stack_size);
+  Task(Scheduler* scheduler, raw_task task, void* arg, stack_size_type stack_size);
 
   [[noreturn]] void run();
 
@@ -40,8 +43,6 @@ class Task {
     (*callable)(task);
     delete callable;
   }
-
-  struct TaskData;
 
   TaskData* impl = nullptr;
 

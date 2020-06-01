@@ -11,8 +11,8 @@ class Scheduler {
   ~Scheduler();
 
   template <class T>
-  void enqueue_task(T task) {
-    enqueue_raw_task(Task(this, static_cast<T&&>(task), 8192));
+  TaskPromise enqueue_task(T task) {
+    return enqueue_raw_task(Task(this, static_cast<T&&>(task), 8192));
   }
 
   void run();
@@ -20,7 +20,7 @@ class Scheduler {
  private:
   struct SchedulerData;
 
-  void enqueue_raw_task(Task task);
+  TaskPromise enqueue_raw_task(Task task);
 
   void yield_task();
 

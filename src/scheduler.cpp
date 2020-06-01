@@ -34,8 +34,10 @@ void Scheduler::run() {
   }
 }
 
-void Scheduler::enqueue_raw_task(Task task) {
+TaskPromise Scheduler::enqueue_raw_task(Task task) {
+  const auto promise = task.make_promise();
   impl->tasks.push(std::move(task));
+  return promise;
 }
 
 void Scheduler::yield_task() {

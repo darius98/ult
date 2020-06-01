@@ -6,11 +6,38 @@ namespace ult {
 
 class Scheduler;
 
+namespace internal {
+struct TaskData;
+}  // namespace internal
+
+class TaskPromise {
+ public:
+  TaskPromise() = default;
+
+  TaskPromise(const TaskPromise&);
+  TaskPromise& operator=(const TaskPromise&);
+
+  TaskPromise(TaskPromise&&) noexcept;
+  TaskPromise& operator=(TaskPromise&&) noexcept;
+
+  ~TaskPromise();
+
+  int exit_status() const;
+
+ private:
+  explicit TaskPromise(internal::TaskData* data);
+
+  internal::TaskData* impl = nullptr;
+
+  friend class Task;
+};
+
 class Task {
  public:
   using id_type = decltype(sizeof(int));          // size_t
   using stack_size_type = decltype(sizeof(int));  // size_t
   using exit_status_type = int;
+  using raw_task_ptr = exit_status_type (*)(Task&, void*);
 
   template <class Callable>
   Task(Scheduler* scheduler, Callable callable, stack_size_type stack_size)
@@ -30,13 +57,12 @@ class Task {
 
   [[noreturn]] void exit(exit_status_type status = 0);
 
- private:
-  using raw_task = exit_status_type (*)(Task&, void*);
-  struct TaskData;
+  TaskPromise make_promise();
 
+ private:
   Task() = default;
 
-  Task(Scheduler* scheduler, raw_task task, void* arg, stack_size_type stack_size);
+  Task(Scheduler* scheduler, raw_task_ptr task, void* arg, stack_size_type stack_size);
 
   [[noreturn]] void run();
 
@@ -55,9 +81,10 @@ class Task {
     return exit_status;
   }
 
-  TaskData* impl = nullptr;
+  internal::TaskData* impl = nullptr;
 
   friend class Scheduler;
+  friend class TaskPromise;
 };
 
 }  // namespace ult

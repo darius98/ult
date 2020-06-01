@@ -1,38 +1,22 @@
 #pragma once
 
 #include <ult/internal/meta.hpp>
+#include <ult/internal/task-data.hpp>
 
 namespace ult {
 
 class Scheduler;
 
-namespace internal {
-struct TaskData;
-}  // namespace internal
-
-class TaskPromise {
+class TaskPromise: public internal::TaskDataPtr {
  public:
-  TaskPromise() = default;
-
-  TaskPromise(const TaskPromise&);
-  TaskPromise& operator=(const TaskPromise&);
-
-  TaskPromise(TaskPromise&&) noexcept;
-  TaskPromise& operator=(TaskPromise&&) noexcept;
-
-  ~TaskPromise();
+  using internal::TaskDataPtr::TaskDataPtr;
 
   int exit_status() const;
-
- private:
-  explicit TaskPromise(internal::TaskData* data);
-
-  internal::TaskData* impl = nullptr;
 
   friend class Task;
 };
 
-class Task {
+class Task: public internal::TaskDataPtr {
  public:
   using id_type = decltype(sizeof(int));          // size_t
   using stack_size_type = decltype(sizeof(int));  // size_t
@@ -45,13 +29,15 @@ class Task {
              stack_size) {
   }
 
+  Task() = default;
+
+  Task(Task&&) = default;
+  Task& operator=(Task&&) = default;
+
   Task(const Task&) = delete;
   Task& operator=(const Task&) = delete;
 
-  Task(Task&& other) noexcept;
-  Task& operator=(Task&& other) noexcept;
-
-  ~Task();
+  ~Task() = default;
 
   void yield();
 
@@ -60,8 +46,6 @@ class Task {
   TaskPromise make_promise();
 
  private:
-  Task() = default;
-
   Task(Scheduler* scheduler, raw_task_ptr task, void* arg, stack_size_type stack_size);
 
   [[noreturn]] void run();
@@ -81,10 +65,7 @@ class Task {
     return exit_status;
   }
 
-  internal::TaskData* impl = nullptr;
-
   friend class Scheduler;
-  friend class TaskPromise;
 };
 
 }  // namespace ult

@@ -4,16 +4,20 @@
 #include <csetjmp>
 #include <queue>
 
-namespace ult {
+namespace {
 
 constexpr int setjmp_task_yield = 1;
 constexpr int setjmp_task_exit = 2;
+
+}  // namespace
+
+namespace ult {
 
 struct Scheduler::SchedulerData {
   jmp_buf scheduler_entry{};
   Task running_task;
   std::queue<Task> tasks;
-  std::atomic<Task::stack_size_type> next_task_id = 1;
+  std::atomic<stack_size_t> next_task_id = 1;
 };
 
 Scheduler::Scheduler() : impl(new SchedulerData()) {
@@ -48,7 +52,7 @@ void Scheduler::exit_task() {
   longjmp(impl->scheduler_entry, setjmp_task_exit);
 }
 
-Task::stack_size_type Scheduler::generate_task_id() {
+task_id_t Scheduler::generate_task_id() {
   return impl->next_task_id.fetch_add(1, std::memory_order_acq_rel);
 }
 

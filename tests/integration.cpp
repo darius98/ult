@@ -3,18 +3,18 @@
 #include <ult.hpp>
 
 using ult::Scheduler;
-using ult::Task;
+using ult::TaskControl;
 using ult::TaskPromise;
 
-void fibonacci_exit(Task& current_task, int n) {
+void fibonacci_exit(TaskControl current_task, int n) {
   if (n <= 1) {
     current_task.exit(n);
   }
-  const auto sub_task_1 = current_task.scheduler().add_task([n](Task& sub_task) {
-    fibonacci_exit(sub_task, n - 1);
+  const auto sub_task_1 = current_task.scheduler().add_task([n](TaskControl sub_task) {
+    fibonacci_exit(std::move(sub_task), n - 1);
   });
-  const auto sub_task_2 = current_task.scheduler().add_task([n](Task& sub_task) {
-    fibonacci_exit(sub_task, n - 2);
+  const auto sub_task_2 = current_task.scheduler().add_task([n](TaskControl sub_task) {
+    fibonacci_exit(std::move(sub_task), n - 2);
   });
   while (!sub_task_1.is_done() || !sub_task_2.is_done()) {
     current_task.yield();
@@ -24,7 +24,7 @@ void fibonacci_exit(Task& current_task, int n) {
 
 TEST(Integration, EnqueueTasksFromTasksWithExit) {
   Scheduler s;
-  const auto promise = s.add_task([](Task& current_task) {
+  const auto promise = s.add_task([](TaskControl current_task) {
     fibonacci_exit(current_task, 17);
   });
   s.run();
@@ -32,14 +32,14 @@ TEST(Integration, EnqueueTasksFromTasksWithExit) {
   ASSERT_EQ(promise.exit_status(), 1597);
 }
 
-int fibonacci_return(Task& current_task, int n) {
+int fibonacci_return(TaskControl current_task, int n) {
   if (n <= 1) {
     return n;
   }
-  const auto sub_task_1 = current_task.scheduler().add_task([n](Task& sub_task) {
+  const auto sub_task_1 = current_task.scheduler().add_task([n](TaskControl sub_task) {
     return fibonacci_return(sub_task, n - 1);
   });
-  const auto sub_task_2 = current_task.scheduler().add_task([n](Task& sub_task) {
+  const auto sub_task_2 = current_task.scheduler().add_task([n](TaskControl sub_task) {
     return fibonacci_return(sub_task, n - 2);
   });
   while (!sub_task_1.is_done() || !sub_task_2.is_done()) {
@@ -50,7 +50,7 @@ int fibonacci_return(Task& current_task, int n) {
 
 TEST(Integration, EnqueueTasksFromTasksWithReturn) {
   Scheduler s;
-  const auto promise = s.add_task([](Task& current_task) {
+  const auto promise = s.add_task([](TaskControl current_task) {
     fibonacci_exit(current_task, 17);
   });
   s.run();
@@ -58,11 +58,11 @@ TEST(Integration, EnqueueTasksFromTasksWithReturn) {
   ASSERT_EQ(promise.exit_status(), 1597);
 }
 
-int fibonacci_stack(Task& current_task, int n) {
+int fibonacci_stack(TaskControl current_task, int n) {
   if (n <= 1) {
     return n;
   }
-  const auto sub_task_1 = current_task.scheduler().add_task([n](Task& sub_task) {
+  const auto sub_task_1 = current_task.scheduler().add_task([n](TaskControl sub_task) {
     return fibonacci_stack(sub_task, n - 1);
   });
   const auto n_2 = fibonacci_stack(current_task, n - 2);
@@ -74,7 +74,7 @@ int fibonacci_stack(Task& current_task, int n) {
 
 TEST(Integration, EnqueueTasksFromTasksWithStack) {
   Scheduler s;
-  const auto promise = s.add_task([](Task& current_task) {
+  const auto promise = s.add_task([](TaskControl current_task) {
     return fibonacci_stack(current_task, 17);
   });
   s.run();

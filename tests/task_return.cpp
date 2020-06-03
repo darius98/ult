@@ -3,12 +3,12 @@
 #include <ult.hpp>
 
 using ult::Scheduler;
-using ult::Task;
+using ult::TaskControl;
 using ult::TaskPromise;
 
 TEST(TaskReturn, NoReturnNoExit) {
   Scheduler s;
-  const auto task = s.add_task([](Task&) {});
+  const auto task = s.add_task([](TaskControl) {});
   s.run();
   ASSERT_TRUE(task.is_done());
   ASSERT_EQ(task.exit_status(), 0);
@@ -16,7 +16,7 @@ TEST(TaskReturn, NoReturnNoExit) {
 
 TEST(TaskReturn, ZeroExit) {
   Scheduler s;
-  const auto task = s.add_task([](Task& task) {
+  const auto task = s.add_task([](TaskControl task) {
     task.exit(0);
   });
   s.run();
@@ -26,7 +26,7 @@ TEST(TaskReturn, ZeroExit) {
 
 TEST(TaskReturn, NonZeroExit) {
   Scheduler s;
-  const auto task = s.add_task([](Task& task) {
+  const auto task = s.add_task([](TaskControl task) {
     task.exit(17);
   });
   s.run();
@@ -36,7 +36,7 @@ TEST(TaskReturn, NonZeroExit) {
 
 TEST(TaskReturn, ZeroReturn) {
   Scheduler s;
-  const auto task = s.add_task([](Task&) {
+  const auto task = s.add_task([](TaskControl) {
     return 0;
   });
   s.run();
@@ -46,7 +46,7 @@ TEST(TaskReturn, ZeroReturn) {
 
 TEST(TaskReturn, NonZeroReturn) {
   Scheduler s;
-  const auto task = s.add_task([](Task&) {
+  const auto task = s.add_task([](TaskControl) {
     return 17;
   });
   s.run();
@@ -56,10 +56,10 @@ TEST(TaskReturn, NonZeroReturn) {
 
 TEST(TaskReturn, TwoTasks) {
   Scheduler s;
-  const auto task1 = s.add_task([](Task&) {
+  const auto task1 = s.add_task([](TaskControl) {
     return 17;
   });
-  const auto task2 = s.add_task([](Task&) {
+  const auto task2 = s.add_task([](TaskControl) {
     return 23;
   });
   s.run();
@@ -73,7 +73,7 @@ TEST(TaskReturn, ArrayOfTasks) {
   Scheduler s;
   std::vector<TaskPromise> tasks;
   for (int i = 0; i < 1000; i++) {
-    auto task = s.add_task([i](Task& t) {
+    auto task = s.add_task([i](TaskControl t) {
       if (i % 2 == 0) {
         t.exit(i);
       }

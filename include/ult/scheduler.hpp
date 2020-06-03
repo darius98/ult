@@ -1,5 +1,6 @@
 #pragma once
 
+#include "internal/meta.hpp"
 #include "task.hpp"
 
 namespace ult {
@@ -12,7 +13,7 @@ class Scheduler {
 
   template <class T>
   TaskPromise add_task(T task) {
-    return add_task_raw(Task(this, static_cast<T&&>(task), 8192));
+    return add_task_raw(Task(this, generate_task_id(), internal::move(task), 8192));
   }
 
   void run();
@@ -26,11 +27,11 @@ class Scheduler {
 
   [[noreturn]] void exit_task();
 
-  Task::stack_size_type generate_task_id();
+  task_id_t generate_task_id();
 
   SchedulerData* impl;
 
-  friend class Task;
+  friend class TaskControl;
 };
 
 }  // namespace ult

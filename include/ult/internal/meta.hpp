@@ -3,14 +3,17 @@
 namespace ult::internal {
 
 template <class T, class U>
-struct IsSame {
+struct IsSameImpl {
   static constexpr bool value = false;
 };
 
 template <class T>
-struct IsSame<T, T> {
+struct IsSameImpl<T, T> {
   static constexpr bool value = true;
 };
+
+template <class T, class U>
+constexpr bool is_same = IsSameImpl<T, U>::value;
 
 template <class T>
 T a_value() noexcept;
@@ -29,8 +32,27 @@ struct IsConvertibleToImpl<From, To, decltype(test_convert<To>(a_value<From>()))
 };
 
 template <class From, class To>
-struct IsConvertibleTo {
-  static constexpr bool value = IsConvertibleToImpl<From, To>::value;
+constexpr bool is_convertible = IsConvertibleToImpl<From, To>::value;
+
+template<class T>
+struct RemoveReferenceImpl {
+  using type = T;
 };
+
+template<class T>
+struct RemoveReferenceImpl<T&> {
+  using type = T;
+};
+
+template<class T>
+struct RemoveReferenceImpl<T&&> {
+  using type = T;
+};
+
+template <class T>
+constexpr typename RemoveReferenceImpl<T>::type&& move(T&& t) noexcept {
+  using U = typename RemoveReferenceImpl<T>::type;
+  return static_cast<U&&>(t);
+}
 
 }  // namespace ult::internal

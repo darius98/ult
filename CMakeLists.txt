@@ -3,6 +3,9 @@ project(ult)
 
 set(CMAKE_CXX_STANDARD 20)
 
+add_link_options(-fsanitize=address,undefined --coverage)
+add_compile_options(-fsanitize=address,undefined --coverage)
+
 add_library(ult STATIC
         src/internal/task-proxy.cpp
         src/internal/task-data.cpp

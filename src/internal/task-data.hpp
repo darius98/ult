@@ -14,7 +14,7 @@ struct TaskData {
   std::byte* stack_top;
   Scheduler* scheduler;
   std::atomic<int32_t> refs{1};
-  exit_status_t exit_status = 0;
+  int exit_status = 0;
   bool started = false;
   std::atomic<bool> is_done{false};
   jmp_buf state{};

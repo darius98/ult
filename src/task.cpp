@@ -11,7 +11,7 @@ TaskControl Task::control() {
   return TaskControl(ptr);
 }
 
-void Task::exit(exit_status_t status) {
+void Task::exit(int status) {
   control().exit(status);
 }
 

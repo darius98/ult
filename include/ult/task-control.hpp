@@ -16,7 +16,7 @@ class TaskControl : internal::TaskDataPtr {
 
   void yield();
 
-  [[noreturn]] void exit(exit_status_t status = 0);
+  [[noreturn]] void exit(int status = 0);
 };
 
 }  // namespace ult

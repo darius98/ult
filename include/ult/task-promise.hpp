@@ -13,7 +13,7 @@ class TaskPromise : public internal::TaskDataPtr {
 
   bool is_done() const;
 
-  exit_status_t exit_status() const;
+  int exit_status() const;
 
   Scheduler& scheduler() const;
 };

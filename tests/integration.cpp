@@ -51,7 +51,7 @@ int fibonacci_return(TaskControl current_task, int n) {
 TEST(Integration, EnqueueTasksFromTasksWithReturn) {
   Scheduler s;
   const auto promise = s.add_task([](TaskControl current_task) {
-    fibonacci_exit(current_task, 17);
+    return fibonacci_return(current_task, 17);
   });
   s.run();
   ASSERT_TRUE(promise.is_done());

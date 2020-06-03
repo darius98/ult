@@ -20,7 +20,7 @@ void TaskControl::yield() {
   }
 }
 
-void TaskControl::exit(exit_status_t status) {
+void TaskControl::exit(int status) {
   ptr->exit_status = status;
   ptr->is_done.store(true, std::memory_order_release);
   ptr->scheduler->exit_task();

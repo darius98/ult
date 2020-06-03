@@ -1,7 +1,8 @@
 #pragma once
 
 #include "internal/meta.hpp"
-#include "task.hpp"
+#include "internal/task-proxy.hpp"
+#include "task-promise.hpp"
 
 namespace ult {
 
@@ -12,8 +13,8 @@ class Scheduler {
   ~Scheduler();
 
   template <class T>
-  TaskPromise add_task(T task) {
-    return add_task_raw(Task(this, generate_task_id(), internal::move(task), 8192));
+  TaskPromise add_task(T callable) {
+    return add_task_raw(&internal::task_proxy<T>, new T(internal::move(callable)), 8192);
   }
 
   void run();
@@ -21,7 +22,7 @@ class Scheduler {
  private:
   struct SchedulerData;
 
-  TaskPromise add_task_raw(Task task);
+  TaskPromise add_task_raw(internal::task_function_ptr task, void* arg, stack_size_t stack_size);
 
   void yield_task();
 

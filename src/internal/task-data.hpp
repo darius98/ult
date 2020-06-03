@@ -5,7 +5,8 @@
 #include <cstdlib>
 #include <memory>
 
-#include "ult/task.hpp"
+#include "ult/scheduler.hpp"
+#include "ult/types.hpp"
 
 namespace ult::internal {
 
@@ -16,7 +17,7 @@ struct TaskData {
   Scheduler* scheduler;
   std::atomic<int32_t> refs{1};
   std::size_t id;
-  Task::raw_task_ptr task;
+  task_function_ptr task;
   void* arg;
   std::atomic<bool> is_done{false};
   exit_status_t exit_status = 0;

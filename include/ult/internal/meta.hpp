@@ -34,17 +34,17 @@ struct IsConvertibleToImpl<From, To, decltype(test_convert<To>(a_value<From>()))
 template <class From, class To>
 constexpr bool is_convertible = IsConvertibleToImpl<From, To>::value;
 
-template<class T>
+template <class T>
 struct RemoveReferenceImpl {
   using type = T;
 };
 
-template<class T>
+template <class T>
 struct RemoveReferenceImpl<T&> {
   using type = T;
 };
 
-template<class T>
+template <class T>
 struct RemoveReferenceImpl<T&&> {
   using type = T;
 };

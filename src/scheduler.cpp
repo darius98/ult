@@ -4,6 +4,8 @@
 #include <csetjmp>
 #include <queue>
 
+#include "task.hpp"
+
 namespace {
 
 constexpr int setjmp_task_yield = 1;
@@ -38,7 +40,9 @@ void Scheduler::run() {
   }
 }
 
-TaskPromise Scheduler::add_task_raw(Task task) {
+TaskPromise Scheduler::add_task_raw(internal::task_function_ptr raw_task, void* arg,
+                                    stack_size_t stack_size) {
+  Task task(this, generate_task_id(), raw_task, arg, stack_size);
   const auto promise = task.promise();
   impl->tasks.push(std::move(task));
   return promise;

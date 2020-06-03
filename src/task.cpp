@@ -1,44 +1,14 @@
-#include "ult/task.hpp"
+#include "task.hpp"
 
 #include <memory>
 
+#include "internal/task-data.hpp"
 #include "set-stack-pointer.hpp"
-#include "task-data.hpp"
 #include "ult/scheduler.hpp"
 
 namespace ult {
 
-bool TaskPromise::is_done() const {
-  return ptr->is_done.load(std::memory_order_acquire);
-}
-
-int TaskPromise::exit_status() const {
-  return ptr->exit_status;
-}
-
-TaskPromise TaskControl::promise() {
-  return TaskPromise(ptr);
-}
-
-Scheduler& TaskControl::scheduler() {
-  return *ptr->scheduler;
-}
-
-void TaskControl::yield() {
-  if (setjmp(ptr->state)) {
-    return;
-  } else {
-    ptr->scheduler->yield_task();
-  }
-}
-
-void TaskControl::exit(exit_status_t status) {
-  ptr->exit_status = status;
-  ptr->is_done.store(true, std::memory_order_release);
-  ptr->scheduler->exit_task();
-}
-
-Task::Task(Scheduler* scheduler, task_id_t id, raw_task_ptr task, void* arg,
+Task::Task(Scheduler* scheduler, task_id_t id, internal::task_function_ptr task, void* arg,
            stack_size_t stack_size)
     : internal::TaskDataPtr(new internal::TaskData()) {
   ptr->scheduler = scheduler;
@@ -62,10 +32,6 @@ void Task::exit(exit_status_t status) {
   control().exit(status);
 }
 
-void* Task::arg() {
-  return ptr->arg;
-}
-
 void Task::run() {
   if (ptr->started) {
     longjmp(ptr->state, 1);
@@ -73,7 +39,7 @@ void Task::run() {
     ptr->started = true;
     auto top = ptr->stack_top;
     ULT_SET_STACK_POINTER(top);
-    const auto status = ptr->task(*this);
+    const auto status = ptr->task(this, ptr->arg);
     exit(status);
   }
 }

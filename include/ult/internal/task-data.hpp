@@ -17,7 +17,7 @@ class TaskDataPtr {
   ~TaskDataPtr();
 
  protected:
-  explicit TaskDataPtr(internal::TaskData* data);
+  explicit TaskDataPtr(TaskData* data);
 
   TaskData* ptr = nullptr;
 };

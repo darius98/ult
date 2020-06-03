@@ -26,6 +26,19 @@ struct Scheduler::SchedulerData {
 Scheduler::Scheduler() : impl(new SchedulerData()) {
 }
 
+Scheduler::Scheduler(Scheduler&& other) noexcept: impl(other.impl) {
+  other.impl = nullptr;
+}
+
+Scheduler& Scheduler::operator=(Scheduler&& other) noexcept {
+  if (this != &other) {
+    delete impl;
+    impl = other.impl;
+    other.impl = nullptr;
+  }
+  return *this;
+}
+
 Scheduler::~Scheduler() {
   delete impl;
 }
@@ -43,9 +56,8 @@ void Scheduler::run() {
 
 TaskPromise Scheduler::add_task_raw(internal::task_function_ptr raw_task, void* arg,
                                     stack_size_t stack_size) {
-  const auto ptr = internal::make_task_data(this, generate_task_id(), raw_task, arg, stack_size);
-  Task task(ptr);
-  impl->tasks.push(std::move(task));
+  const auto ptr = new internal::TaskData(this, generate_task_id(), raw_task, arg, stack_size);
+  impl->tasks.push(Task(ptr));
   return TaskPromise(ptr);
 }
 

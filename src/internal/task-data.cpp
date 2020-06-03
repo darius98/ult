@@ -50,17 +50,11 @@ TaskDataPtr::TaskDataPtr(internal::TaskData* data) : ptr(data) {
   }
 }
 
-TaskData* make_task_data(Scheduler* scheduler, task_id_t id, internal::task_function_ptr task,
-                         void* arg, stack_size_t stack_size) {
-  const auto ptr = new TaskData();
-  ptr->scheduler = scheduler;
-  ptr->id = id;
-  ptr->task = task;
-  ptr->arg = arg;
-  ptr->stack_size = stack_size;
-  ptr->stack_bottom = std::make_unique<std::byte[]>(stack_size);
-  ptr->stack_top = ptr->stack_bottom.get() + ptr->stack_size;
-  return ptr;
+TaskData::TaskData(Scheduler* scheduler, task_id_t id, internal::task_function_ptr task, void* arg,
+                   stack_size_t stack_size)
+    : scheduler(scheduler), id(id), task(task), arg(arg), stack_size(stack_size) {
+  stack_bottom = std::make_unique<std::byte[]>(stack_size);
+  stack_top = stack_bottom.get() + stack_size;
 }
 
 }  // namespace ult::internal

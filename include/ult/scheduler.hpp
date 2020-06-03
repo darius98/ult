@@ -10,6 +10,9 @@ class Scheduler {
  public:
   Scheduler();
 
+  Scheduler(Scheduler&&) noexcept;
+  Scheduler& operator=(Scheduler&&) noexcept;
+
   ~Scheduler();
 
   template <class T>

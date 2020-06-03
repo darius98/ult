@@ -5,6 +5,8 @@
 
 namespace ult {
 
+class Scheduler;
+
 class TaskPromise : public internal::TaskDataPtr {
  public:
   using internal::TaskDataPtr::TaskDataPtr;
@@ -13,7 +15,7 @@ class TaskPromise : public internal::TaskDataPtr {
 
   exit_status_t exit_status() const;
 
-  friend class TaskControl;
+  Scheduler& scheduler() const;
 };
 
 }  // namespace ult

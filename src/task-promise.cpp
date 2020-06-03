@@ -12,4 +12,8 @@ int TaskPromise::exit_status() const {
   return ptr->exit_status;
 }
 
+Scheduler& TaskPromise::scheduler() const {
+  return *ptr->scheduler;
+}
+
 }  // namespace ult

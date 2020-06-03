@@ -4,11 +4,11 @@
 
 namespace ult {
 
-TaskPromise TaskControl::promise() {
+TaskPromise TaskControl::promise() const {
   return TaskPromise(ptr);
 }
 
-Scheduler& TaskControl::scheduler() {
+Scheduler& TaskControl::scheduler() const {
   return *ptr->scheduler;
 }
 

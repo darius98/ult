@@ -8,6 +8,8 @@ class TaskDataPtr {
  public:
   TaskDataPtr() = default;
 
+  explicit TaskDataPtr(TaskData* data);
+
   TaskDataPtr(const TaskDataPtr&);
   TaskDataPtr& operator=(const TaskDataPtr&);
 
@@ -17,8 +19,6 @@ class TaskDataPtr {
   ~TaskDataPtr();
 
  protected:
-  explicit TaskDataPtr(TaskData* data);
-
   TaskData* ptr = nullptr;
 };
 

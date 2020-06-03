@@ -8,10 +8,9 @@ namespace ult {
 
 class Task : public internal::TaskDataPtr {
  public:
-  Task(Scheduler* scheduler, task_id_t id, internal::task_function_ptr task, void* arg,
-       stack_size_t stack_size);
-
   Task() = default;
+
+  explicit Task(internal::TaskData* ptr);
 
   Task(Task&&) = default;
   Task& operator=(Task&&) = default;
@@ -22,8 +21,6 @@ class Task : public internal::TaskDataPtr {
   ~Task() = default;
 
   TaskControl control();
-
-  TaskPromise promise();
 
   [[noreturn]] void run();
 

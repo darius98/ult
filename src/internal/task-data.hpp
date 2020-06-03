@@ -25,4 +25,7 @@ struct TaskData {
   std::unique_ptr<std::byte[]> stack_bottom;
 };
 
+TaskData* make_task_data(Scheduler* scheduler, task_id_t id, internal::task_function_ptr task,
+                         void* arg, stack_size_t stack_size);
+
 }  // namespace ult::internal

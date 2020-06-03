@@ -57,3 +57,27 @@ TEST(Integration, EnqueueTasksFromTasksWithReturn) {
   ASSERT_TRUE(promise.is_done());
   ASSERT_EQ(promise.exit_status(), 1597);
 }
+
+int fibonacci_stack(Task& current_task, int n) {
+  if (n <= 1) {
+    return n;
+  }
+  const auto sub_task_1 = current_task.scheduler().add_task([n](Task& sub_task) {
+    return fibonacci_stack(sub_task, n - 1);
+  });
+  const auto n_2 = fibonacci_stack(current_task, n - 2);
+  while (!sub_task_1.is_done()) {
+    current_task.yield();
+  }
+  return sub_task_1.exit_status() + n_2;
+}
+
+TEST(Integration, EnqueueTasksFromTasksWithStack) {
+  Scheduler s;
+  const auto promise = s.add_task([](Task& current_task) {
+    return fibonacci_stack(current_task, 17);
+  });
+  s.run();
+  ASSERT_TRUE(promise.is_done());
+  ASSERT_EQ(promise.exit_status(), 1597);
+}

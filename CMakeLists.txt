@@ -4,9 +4,13 @@ project(ult)
 set(CMAKE_CXX_STANDARD 20)
 
 add_library(ult STATIC
+        src/internal/task-proxy.cpp
+        src/internal/task-data.cpp
         src/scheduler.cpp
         src/task.cpp
-        src/task-data.cpp)
+        src/task-control.cpp
+        src/task-promise.cpp
+        )
 target_include_directories(ult PUBLIC include)
 
 enable_testing()
